@@ -1,0 +1,4 @@
+git add main.cpp  // Додати файл main.cpp
+git commit -m "Додано файли з кодом"
+git remote add origin https://github.com/username/repository.git  // Замініть "username/repository" на ваші дані
+git push origin master
