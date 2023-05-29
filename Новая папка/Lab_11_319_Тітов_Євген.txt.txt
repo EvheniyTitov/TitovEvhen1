@@ -1,0 +1,264 @@
+       
+    Лабораторна робота №11
+    
+    з дисципліни «Алгоритмізація та програмування»
+    
+    
+   Тема: "Розробка десктоп-застосунків в середовищі Visual Studio"    	 
+                             Виконав студент гр. 319 Тітов Євген
+                          		       
+
+		МЕТА РОБОТИ
+ Ознайомитися з основами розробки програм з використанням Windows
+Forms і навчитися розробляти десктоп-застосунки із графічним користувацьким
+інтерфейсом для введення/виведення даних на мові програмування C ++ в
+середовищі Visual Studio.
+    
+	  ПОСТАНОВКА ЗАДАЧІ
+    
+Завдання 1. Вивчити алгоритм створення проекту Windows Forms в
+середовищі Visual Studio. Ознайомитись з налаштуваннями основних елементів
+для введення, виведення і управління. *Опрацювати навички створення і
+налаштування десктоп-застосунку у Visual Studio.
+Завдання 2. Для вирішення завдання 41 відповідно до варіанта:
+А. Спроектувати і реалізувати в конструкторі форм графічний інтерфейс
+програми з об'єктами Label, TextBox і Button. *Використати інші елементи
+управління.
+B. Додати програмний код для введення вхідних даних, обчислень і
+виведення результатів. *Відтестувати і налагодити десктоп-застосунок.
+C*. Передбачити зчитування даних з файлу з використанням стандартного
+діалогу для вибору файла, а також збереження результатів в файл із
+відповідним діалогом. Відтестувати і налагодити десктоп-застосунок.
+
+		ВИКОНАННЯ РОБОТИ
+    
+    Завдання 41. 
+    Вхідні дані (ім’я, опис, тип, обмеження):
+   список імен змінних з описом, типами даних, та діапазонами допустимих значень
+    Вихідні дані (ім’я, опис, тип):    
+
+    Лістинг коду вирішення задачі 
+
+код зі збереженням відступів, коментарями
+
+#include <Windows.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+using namespace System;
+using namespace System::Windows::Forms;
+
+// Функція для обчислення значення функції
+double calculateFunction(double x) {
+    return 4 * Math::Pow(x - 3, 6) - 7 * Math::Pow(x - 3, 3) + 2;
+}
+
+// Функція для відкриття діалогу вибору файлу
+std::string openFileDialog() {
+    OPENFILENAMEA ofn;
+    CHAR szFile[MAX_PATH] = "";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+    if (GetOpenFileNameA(&ofn) == TRUE) {
+        return std::string(ofn.lpstrFile);
+    }
+    else {
+        return "";
+    }
+}
+
+// Функція для збереження результату в файл з діалогом збереження
+void saveFileDialog(const std::string& result) {
+    OPENFILENAMEA ofn;
+    CHAR szFile[MAX_PATH] = "";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_OVERWRITEPROMPT;
+
+    if (GetSaveFileNameA(&ofn) == TRUE) {
+        std::ofstream outputFile(ofn.lpstrFile);
+        if (outputFile.is_open()) {
+            outputFile << result;
+            outputFile.close();
+        }
+        else {
+            MessageBox::Show(L"Error saving the file.", L"Error");
+        }
+    }
+}
+
+// Основний клас форми
+public ref class MyForm : public System::Windows::Forms::Form {
+public:
+    MyForm() {
+        InitializeComponent();
+    }
+
+protected:
+    ~MyForm() {
+        if (components) {
+            delete components;
+        }
+    }
+
+private:
+    System::Windows::Forms::Button^ button1;
+    System::Windows::Forms::Button^ button2;
+    System::Windows::Forms::Label^ label1;
+    System::Windows::Forms::TextBox^ textBox1;
+    System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel1;
+
+#pragma region Windows Form Designer generated code
+    void InitializeComponent(void) {
+        this->button1 = (gcnew System::Windows::Forms::Button());
+        this->button2 = (gcnew System::Windows::Forms::Button());
+        this->label1 = (gcnew System::Windows::Forms::Label());
+        this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+        this->tableLayoutPanel1 = (gcnew System::Windows::Forms::TableLayoutPanel());
+
+        this->tableLayoutPanel1->SuspendLayout();
+        this->SuspendLayout();
+
+        // Налаштування кнопок
+        this->button1->Dock = System::Windows::Forms::DockStyle::Fill;
+        this->button1->Location = System::Drawing::Point(3, 3);
+        this->button1->Name = L"button1";
+        this->button1->Size = System::Drawing::Size(134, 74);
+        this->button1->TabIndex = 0;
+        this->button1->Text = L"Відкрити файл";
+        this->button1->UseVisualStyleBackColor = true;
+        this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
+
+        this->button2->Dock = System::Windows::Forms::DockStyle::Fill;
+        this->button2->Location = System::Drawing::Point(143, 3);
+        this->button2->Name = L"button2";
+        this->button2->Size = System::Drawing::Size(134, 74);
+        this->button2->TabIndex = 1;
+        this->button2->Text = L"Зберегти результат";
+        this->button2->UseVisualStyleBackColor = true;
+        this->button2->Click += gcnew System::EventHandler(this, &MyForm::button2_Click);
+
+        // Налаштування мітки
+        this->label1->AutoSize = true;
+        this->label1->Dock = System::Windows::Forms::DockStyle::Fill;
+        this->label1->Location = System::Drawing::Point(3, 80);
+        this->label1->Name = L"label1";
+        this->label1->Size = System::Drawing::Size(134, 24);
+        this->label1->TabIndex = 2;
+        this->label1->Text = L"Результат:";
+        this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+
+        // Налаштування текстового поля
+        this->textBox1->Dock = System::Windows::Forms::DockStyle::Fill;
+        this->textBox1->Location = System::Drawing::Point(143, 83);
+        this->textBox1->Name = L"textBox1";
+        this->textBox1->ReadOnly = true;
+        this->textBox1->Size = System::Drawing::Size(134, 20);
+        this->textBox1->TabIndex = 3;
+
+        // Налаштування таблиці макетування
+        this->tableLayoutPanel1->ColumnCount = 2;
+        this->tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
+        this->tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent, 50)));
+        this->tableLayoutPanel1->Controls->Add(this->button1, 0, 0);
+        this->tableLayoutPanel1->Controls->Add(this->button2, 1, 0);
+        this->tableLayoutPanel1->Controls->Add(this->label1, 0, 1);
+        this->tableLayoutPanel1->Controls->Add(this->textBox1, 1, 1);
+        this->tableLayoutPanel1->Dock = System::Windows::Forms::DockStyle::Fill;
+        this->tableLayoutPanel1->Location = System::Drawing::Point(0, 0);
+        this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
+        this->tableLayoutPanel1->RowCount = 2;
+        this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
+        this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 30)));
+        this->tableLayoutPanel1->Size = System::Drawing::Size(280, 107);
+        this->tableLayoutPanel1->TabIndex = 4;
+
+        // Налаштування форми
+        this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+        this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+        this->ClientSize = System::Drawing::Size(280, 107);
+        this->Controls->Add(this->tableLayoutPanel1);
+        this->Name = L"MyForm";
+        this->Text = L"Функція";
+        this->tableLayoutPanel1->ResumeLayout(false);
+        this->tableLayoutPanel1->PerformLayout();
+        this->ResumeLayout(false);
+        this->PerformLayout();
+    }
+
+#pragma endregion
+
+    // Обробник події натискання кнопки "Відкрити файл"
+    System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+        std::string filePath = openFileDialog();
+
+        if (!filePath.empty()) {
+            std::ifstream inputFile(filePath);
+            if (inputFile.is_open()) {
+                std::string line;
+                std::getline(inputFile, line);
+                inputFile.close();
+
+                double x = std::stod(line);
+                double result = calculateFunction(x);
+
+                textBox1->Text = result.ToString();
+            }
+            else {
+                MessageBox::Show(L"Error opening the file.", L"Error");
+            }
+        }
+    }
+
+    // Обробник події натискання кнопки "Зберегти результат"
+    System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+        String^ resultString = textBox1->Text;
+        std::string result = msclr::interop::marshal_as<std::string>(resultString);
+
+        saveFileDialog(result);
+    }
+};
+
+// Головна функція програми
+int main(array<System::String^>^ args) {
+    Application::EnableVisualStyles();
+    Application::SetCompatibleTextRenderingDefault(false);
+
+    MyForm form;
+    Application::Run(% form);
+
+    return 0;
+}
+
+
+
+
+ 
+		ВИСНОВКИ
+     
+Було ознайомлено з основами розробки програм з використанням Windows
+Forms і розроблено десктоп-застосунки із графічним користувацьким
+інтерфейсом для введення/виведення даних на мові програмування C ++ в
+середовищі Visual Studio.
+Закріплено на практиці тему: "Розробка десктоп-застосунків в середовищі Visual Studio"    
+Відпрацьовано в коді програми розробку десктоп-застосунки із графічним користувацьким
+інтерфейсом для введення/виведення даних на мові програмування C ++ в
+середовищі Visual Studio.
+Отримано навички з основ роботи з десктоп-застосунками на мові С ++
+     
+
+
+   
+
